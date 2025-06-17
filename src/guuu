@@ -1,0 +1,147 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+
+const SNIPPETS = [
+  { text: 'The boss is in town.', truthfulness: 80 },
+  { text: 'A hit is planned for Friday.', truthfulness: 90 },
+  { text: 'Police might raid this place.', truthfulness: 60 },
+  { text: 'There`s a mole in the mafia.', truthfulness: 95 },
+  { text: 'Someone is stealing from the till.', truthfulness: 40 },
+  { text: 'The bartender is being watched.', truthfulness: 70 },
+  { text: 'A rival gang is closing in.', truthfulness: 85 },
+  { text: 'There’s a traitor among us.', truthfulness: 75 },
+  { text: 'The boss plans to retire soon.', truthfulness: 50 },
+  { text: 'That new guy? Definitely suspicious.', truthfulness: 30 },
+  // Add more as needed up to 40...
+];
+
+const patronsData = [
+  { id: 'patron1', image: '/images/patron1.png' },
+  { id: 'patron2', image: '/images/patron2.png' },
+  { id: 'patron3', image: '/images/patron3.png' },
+  { id: 'patron4', image: '/images/patron4.png' },
+];
+
+const TOTAL_ROUNDS = 7;
+const ROUND_TIME = 30; // seconds
+const MAX_SUSPICION = 100;
+const MAX_PATRONS_LEAVING = 4;
+
+export default function WhispersGame() {
+  const [round, setRound] = useState(1);
+  const [secrets, setSecrets] = useState(0);
+  const [suspicion, setSuspicion] = useState(0);
+  const [timer, setTimer] = useState(ROUND_TIME);
+  const [activeSnippet, setActiveSnippet] = useState(null);
+  const [usedSnippets, setUsedSnippets] = useState([]);
+  const [gameOver, setGameOver] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [patronsServed, setPatronsServed] = useState([]);
+  const [patronsLeft, setPatronsLeft] = useState(0);
+
+  useEffect(() => {
+    if (timer > 0 && !modalOpen && !gameOver) {
+      const countdown = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(countdown);
+    } else if (timer === 0) {
+      endRound();
+    }
+  }, [timer, modalOpen, gameOver]);
+
+  const endRound = () => {
+    const skipped = 4 - patronsServed.length;
+    setPatronsLeft((prev) => prev + skipped);
+    if (patronsLeft + skipped >= MAX_PATRONS_LEAVING || round === TOTAL_ROUNDS) {
+      setGameOver(true);
+    } else {
+      setRound((r) => r + 1);
+      setPatronsServed([]);
+      setTimer(ROUND_TIME);
+    }
+  };
+
+  const handleServe = (patronId) => {
+    if (patronsServed.includes(patronId) || modalOpen || gameOver) return;
+    const availableSnippets = SNIPPETS.filter(s => !usedSnippets.includes(s.text));
+    const random = availableSnippets[Math.floor(Math.random() * availableSnippets.length)];
+    setActiveSnippet(random);
+    setModalOpen(true);
+    setPatronsServed((prev) => [...prev, patronId]);
+  };
+
+  const handleKeep = () => {
+    setUsedSnippets((prev) => [...prev, activeSnippet.text]);
+    setModalOpen(false);
+    if (activeSnippet.truthfulness >= 60) {
+      setSecrets((s) => s + 1);
+      setFeedbackMessage('Good call. That one checks out.');
+    } else {
+      const newSuspicion = suspicion + (100 - activeSnippet.truthfulness) / 2;
+      setSuspicion(newSuspicion);
+      setFeedbackMessage('Risky move. You raised suspicion.');
+      if (newSuspicion >= MAX_SUSPICION) setGameOver(true);
+    }
+  };
+
+  const handleDiscard = () => {
+    setUsedSnippets((prev) => [...prev, activeSnippet.text]);
+    setModalOpen(false);
+    setFeedbackMessage('Safe play. You passed.');
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      {gameOver ? (
+        <div className="text-center text-xl font-bold">
+          Game Over!<br />Secrets gathered: {secrets}<br />Final Suspicion: {Math.round(suspicion)}
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <div>Secrets: {secrets}</div>
+            <div className="w-1/3">
+              <Progress value={suspicion} />
+              <div className="text-sm text-center">Suspicion: {Math.round(suspicion)}/100</div>
+            </div>
+            <div>Round: {round}/{TOTAL_ROUNDS}</div>
+            <div>Time Left: {timer}s</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {patronsData.map((patron) => (
+              <Card key={patron.id} onClick={() => handleServe(patron.id)} className="cursor-pointer">
+                <CardContent className="flex flex-col items-center p-4">
+                  <img src={patron.image} alt={patron.id} className="w-24 h-24 rounded-full" />
+                  <div className="mt-2">{patronsServed.includes(patron.id) ? 'Served' : 'Waiting'}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+
+      {modalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow-xl w-full max-w-md">
+            <p className="text-lg">Snippet: {activeSnippet.text}</p>
+            <div className="mt-4 flex justify-between">
+              <Button onClick={handleKeep}>Keep</Button>
+              <Button onClick={handleDiscard} variant="outline">Discard</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {feedbackMessage && !modalOpen && !gameOver && (
+        <div className="text-center text-lg font-semibold text-yellow-800 bg-yellow-100 p-2 rounded">
+          {feedbackMessage}
+        </div>
+      )}
+    </div>
+  );
+}

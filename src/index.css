@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Special Elite";
+  src: url("assets/fonts/Special_Elite/SpecialElite-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "LibreBaskerville-Regular";
+  src: url("assets/fonts/Libre_Baskerville/LibreBaskerville-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif; */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "LibreBaskerville-Regular", sans-serif;
+}
+
+.special-elite {
+  font-family: "Special Elite", cursive;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.background-blur {
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.background-blur::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background-size: cover;
+  background-position: center;
+  background-image: url("assets/loading-bg.jpg");
+  filter: blur(15px);
+  z-index: -1;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+.mafia-frame {
+  background: linear-gradient(to bottom right, #222, #111);
+  border: 6px solid gold;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.3);
+  position: relative;
+
+  border: 8px double #f69b02;
+  box-shadow: 5px 5px 0 #e5bf07, -5px -5px 0 #78360f;
+  transform: rotate(-1deg);
+}
+
+.mafia-frame::before {
+  content: "🕴️";
+  position: absolute;
+  top: -25px;
+  left: -25px;
+  font-size: 2rem;
+}
+
+.mafia-frame::after {
+  content: "💼";
+  position: absolute;
+  bottom: -25px;
+  right: -25px;
+  font-size: 2rem;
+}
+
+/* Toast container */
+#toast-container {
+  position: fixed;
+  top: 4rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+
+/* Individual toast */
+.toast {
+  background: #222;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-left: 5px solid gold;
+  border-radius: 4px;
+  min-width: 200px;
+  font-family: sans-serif;
+  font-size: 1rem;
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slideIn 0.4s forwards;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+progress[value] {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+}
+
+progress[value]::-webkit-progress-bar {
+  background-color: #475568;
+  border: none;
+  border-radius: 1rem;
+  /* box-shadow: inset 0px 0.5px 1px blue; */
+  box-shadow: none;
+}
+
+progress[value]::-webkit-progress-value {
+  background: goldenrod;
+  box-shadow: none;
+  border-color: transparent;
+  border-radius: 2px;
+  background-image: -moz-linear-gradient(
+      135deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -moz-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -moz-linear-gradient(left, #09c, #f44);
+
+  border-radius: 1rem;
+  background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+/* progress[value]::-moz-progress-bar {
+  background-image: -moz-linear-gradient(
+      135deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -moz-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -moz-linear-gradient(left, #09c, #f44);
+
+  border-radius: 2px;
+  background-size: 35px 20px, 100% 100%, 100% 100%;
+} */
